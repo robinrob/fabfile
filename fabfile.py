@@ -7,11 +7,20 @@ from fabric.decorators import task
 
 PYTHON = '3.2'
 
+LOGS = 'logs'
+
+TMP = 'tmp'
+
+ARTIFACTS = [LOGS, TMP]
+
+DEFAULT_BRANCH = "master"
 
 @task
 def install(destination=None):
-    install_python()
+    # install_python()
     install_requirements()
+    if not os.path.exists(LOGS):
+        os.mkdir(LOGS)
 
 
 def install_python():
@@ -23,7 +32,7 @@ def use_python(version):
 
 
 def install_requirements():
-    use_python(PYTHON)
+    # use_python(PYTHON)
     subprocess.call("pip install -r requirements.txt", shell=True)
 
 
@@ -34,17 +43,22 @@ def clean():
     subprocess.call("find . -name '*~' -delete", shell=True)
     subprocess.call("find . -name '*.orig' -delete", shell=True)
     subprocess.call("find logs -name '*.log' -delete", shell=True)
+    clean_artifacts()
+    
+
+def clean_artifacts():
+    for file in ARTIFACTS:
+        if os.path.exists(file):
+            if os.path.isdir(file):
+                shutil.rmtree(file)
+            
+            else:
+                os.remove(file)
 
 
 @task
 def test():
     subprocess.call("nosetests", shell=True)
-
-
-@task
-def run(destination):
-    subprocess.call("git clone -b master git@bitbucket.org:robinrob/" + PYAPP_NAME + ".git " + destination, shell=True)
-    install(destination)
 
 
 @task
@@ -55,7 +69,6 @@ def count():
 
 @task
 def commit(message="Auto-update."):
-    clean()
     add()
     status()
     subprocess.call("git commit -m '" + message + "'", shell=True)
@@ -63,6 +76,7 @@ def commit(message="Auto-update."):
 
 @task
 def add():
+    clean()
     subprocess.call("git add .", shell=True)
     subprocess.call("git add .gitignore", shell=True)
     subprocess.call("git add -u", shell=True)
@@ -71,12 +85,13 @@ def add():
 
 
 @task
-def push(branch="master"):
+def push(branch=DEFAULT_BRANCH):
     subprocess.call("git push origin " + branch, shell=True)
     
     
 @task
-def pull(branch="master"):    subprocess.call("git pull origin " + branch, shell=True)
+def pull(branch=DEFAULT_BRANCH):
+    subprocess.call("git pull origin " + branch, shell=True)
     
     
 @task
@@ -90,10 +105,25 @@ def log():
 
 
 @task
-def save(message="Auto-update", branch="master"):
+def save(message="Auto-update", branch=DEFAULT_BRANCH):
     commit(message)
     pull(branch)
     push(branch)
+    
+    
+@task
+def checkout(branch):
+    subprocess.call("git checkout " + branch, shell=True)
+
+    
+@task
+def publish(message="Auto-update", from_branch="develop", to_branch=DEFAULT_BRANCH):
+    commit(message)
+    pull(from_branch)
+    push(from_branch)
+    checkout(to_branch)
+    pull(from_branch)
+    push(to_branch)
     
     
 @task
