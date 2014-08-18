@@ -40,13 +40,13 @@ def install_requirements():
     # use_python(PYTHON)
     subprocess.call("pip install -r requirements.txt", shell=True)
 
+
 @task
 def clean():
     subprocess.call("find . -name '*.pyc' -delete", shell=True)
     subprocess.call("find . -name '__pycache__' -delete", shell=True)
     subprocess.call("find . -name '*~' -delete", shell=True)
     subprocess.call("find . -name '*.orig' -delete", shell=True)
-    subprocess.call("find logs -name '*.log' -delete", shell=True)
 
 
 @task
