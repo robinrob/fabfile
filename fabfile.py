@@ -15,17 +15,19 @@ def commit(message="Auto-update."):
     add()
     status()
     subprocess.call("git commit -m '" + message + "'", shell=True)
-    
+
 
 @task
 def status():
     subprocess.call("git status", shell=True)
-    
+
 
 @task
 def install(destination=None):
     # install_python()
     install_requirements()
+    if not os.path.exists(LOGS):
+        os.mkdir(LOGS)
 
 
 def install_python():
@@ -40,13 +42,13 @@ def install_requirements():
     # use_python(PYTHON)
     subprocess.call("pip install -r requirements.txt", shell=True)
 
-
 @task
 def clean():
     subprocess.call("find . -name '*.pyc' -delete", shell=True)
     subprocess.call("find . -name '__pycache__' -delete", shell=True)
     subprocess.call("find . -name '*~' -delete", shell=True)
     subprocess.call("find . -name '*.orig' -delete", shell=True)
+    subprocess.call("find logs -name '*.log' -delete", shell=True)
 
 
 @task
@@ -70,24 +72,28 @@ def commit(message="Auto-update."):
 @task
 def add():
     clean()
-    subprocess.call("git add -A", shell=True)
+    subprocess.call("git add .", shell=True)
+    subprocess.call("git add .gitignore", shell=True)
+    subprocess.call("git add -u", shell=True)
+    subprocess.call("git add README.md --ignore-errors", shell=True)
+    subprocess.call("git add requirements.txt --ignore-errors", shell=True)
 
 
 @task
 def push(branch=DEFAULT_BRANCH):
     subprocess.call("git push origin " + branch, shell=True)
-    
-    
+
+
 @task
 def pull(branch=DEFAULT_BRANCH):
     subprocess.call("git pull origin " + branch, shell=True)
-    
-    
+
+
 @task
 def status():
     subprocess.call("git status", shell=True)
-    
-    
+
+
 @task
 def log():
     subprocess.call("git log", shell=True)
@@ -98,7 +104,7 @@ def save(message="Auto-update", branch=DEFAULT_BRANCH):
     commit(message)
     pull(branch)
     push(branch)
-    
+
 
 def wrap_quotes(s):
     return "'" + s + "'"
@@ -113,13 +119,13 @@ def test():
 def count():
     clean()
     subprocess.call("find . -name '*.py' | xargs wc -l", shell=True)
-    
-    
+
+
 @task
 def checkout(branch):
     subprocess.call("git checkout " + branch, shell=True)
 
-    
+
 @task
 def publish(message="Auto-update", from_branch="develop", to_branch=DEFAULT_BRANCH):
     commit(message)
@@ -128,8 +134,8 @@ def publish(message="Auto-update", from_branch="develop", to_branch=DEFAULT_BRAN
     checkout(to_branch)
     pull(from_branch)
     push(to_branch)
-    
-    
+
+
 @task
 def log():
     # Git formats
@@ -180,11 +186,11 @@ def deinit(submodule):
     prefix=colored("Deinit repo:", 'red')
     print("{} {}".format(prefix, repo))
 
-    cmd = ["rm -rf", submodule]
+    cmd = "rm -rf {}".format(submodule)
     do(cmd)
-    cmd = ["git rm -rf --ignore-unmatch --cached", submodule]
+    cmd = "git rm -rf --ignore-unmatch --cached {}".format(submodule)
     do(cmd)
-    cmd = ["git submodule deinit", submodule, "2> /dev/null"]
+    cmd = "git submodule deinit {} 2> /dev/null".format(submodule)
     do(cmd)
 
 
@@ -193,6 +199,5 @@ def show(cmd):
 
 
 def do(cmd):
-    cmd = " ".join(cmd)
     show(cmd)
     subprocess.call(cmd, shell=True)
