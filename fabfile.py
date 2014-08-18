@@ -46,7 +46,7 @@ def clean():
     subprocess.call("find . -name '__pycache__' -delete", shell=True)
     subprocess.call("find . -name '*~' -delete", shell=True)
     subprocess.call("find . -name '*.orig' -delete", shell=True)
-    subprocess.call("find logs -name '*.log' -delete 2> /dev/null", shell=True)
+    subprocess.call("find logs -name '*.log' -delete", shell=True)
 
 
 @task
