@@ -99,6 +99,7 @@ def log():
 
 @task
 def save(message="Auto-update", branch=DEFAULT_BRANCH):
+    clean()
     commit(message)
     pull(branch)
     push(branch)
