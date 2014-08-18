@@ -182,9 +182,9 @@ def deinit(submodule):
 
     cmd = ["rm -rf", submodule]
     do(cmd)
-    cmd = ["git rm -rf --ignore-unmatch --cached", submodule]
+    cmd = ["git", "rm -rf --ignore-unmatch --cached", submodule]
     do(cmd)
-    cmd = ["git submodule deinit", submodule, "2> /dev/null"]
+    cmd = ["git" ,"submodule deinit", submodule, "2> /dev/null"]
     do(cmd)
 
 
@@ -193,6 +193,6 @@ def show(cmd):
 
 
 def do(cmd):
-    cmd = " ".join(cmd)
+    #cmd = " ".join(cmd)
     show(cmd)
     subprocess.call(cmd, shell=True)
