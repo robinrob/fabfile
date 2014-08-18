@@ -71,10 +71,10 @@ def commit(message="Auto-update."):
 def add():
     clean()
     subprocess.call("git add .", shell=True)
-    subprocess.call("git add .gitignore", shell=True)
+    subprocess.call("git add .gitignore 2> dev/null", shell=True)
     subprocess.call("git add -u", shell=True)
-    subprocess.call("git add --ignore-errors README.md", shell=True)
-    subprocess.call("git add requirements.txt --ignore-errors", shell=True)
+    subprocess.call("git add README.md 2> dev/null", shell=True)
+    subprocess.call("git add requirements.txt 2> dev/null", shell=True)
 
 
 @task
