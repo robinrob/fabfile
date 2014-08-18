@@ -70,11 +70,7 @@ def commit(message="Auto-update."):
 @task
 def add():
     clean()
-    subprocess.call("git add .", shell=True)
-    subprocess.call("git add .gitignore", shell=True)
-    subprocess.call("git add -u", shell=True)
-    subprocess.call("git add README.md", shell=True)
-    subprocess.call("git add requirements.txt", shell=True)
+    subprocess.call("git add -A", shell=True)
 
 
 @task
