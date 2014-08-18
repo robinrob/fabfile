@@ -26,8 +26,6 @@ def status():
 def install(destination=None):
     # install_python()
     install_requirements()
-    if not os.path.exists(LOGS):
-        os.mkdir(LOGS)
 
 
 def install_python():
