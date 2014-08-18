@@ -1,7 +1,9 @@
 import subprocess
-import logging
 import os
-import shutil
+import csv
+import sys
+from termcolor import colored
+import subprocess
 
 from fabric.decorators import task
 
@@ -137,7 +139,7 @@ def publish(message="Auto-update", from_branch="develop", to_branch=DEFAULT_BRAN
 @task
 def log():
     # Git formats
-    git_log_medium_format = "%C(bold)Commit:%C(reset) %C(green)%H%C(red)%d%n%C(bold)Author:%C(reset) %C(cyan)%an <%ae>%n%C(bold)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B"
+    git_log_medium_format = "%C(bold)commit:%C(reset) %C(green)%H%C(red)%d%n%C(bold)Author:%C(reset) %C(cyan)%an <%ae>%n%C(bold)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B"
     #git_log_oneline_format = "%C(green)%h%C(reset) %s%C(red)%d%C(reset)%n"
     #git_log_brief_format = "%C(green)%h%C(reset) %s%n%C(blue)(%ar by %an)%C(red)%d%C(reset)%n"
 
@@ -161,3 +163,42 @@ def wrap_quotes(s):
 @task
 def readme():
     subprocess.call("less README.md", shell=True)
+
+
+@task
+def sub_deinit(submodule):
+  if submodule is "all":
+    deinit_all()
+
+  else:
+    deinit(submodule)
+
+
+def deinit_all():
+    with open('submodules.csv', 'rt') as file:
+        reader = csv.reader(file, delimiter=',', quotechar='|')
+        reader.readLine()
+        [deinit(row) for row in reader]
+
+
+def deinit(submodule):
+    repo = colored(submodule, 'green')
+    prefix=colored("Deinit repo:", 'red')
+    print("{} {}".format(prefix, repo))
+
+    cmd = ["rm -rf", submodule]
+    do(cmd)
+    cmd = ["git rm -rf --ignore-unmatch --cached", submodule]
+    do(cmd)
+    cmd = ["git submodule deinit", submodule, "2> /dev/null"]
+    do(cmd)
+
+
+def show(cmd):
+    print(cmd)
+
+
+def do(cmd):
+    cmd = " ".join(cmd)
+    show(cmd)
+    subprocess.call(cmd, shell=True)
